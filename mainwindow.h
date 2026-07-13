@@ -16,18 +16,25 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    std::string key_translater_3();
+    void de_3();
+    void de_2();
+    void lggen_3();
+    void lggen_2();
+    void ggggen_3();
+    void ggggen_2();
 
-    public slots:
-        void de_clicked();
-        void deCopy_clicked();
-        void deDelete_clicked();
-        void lggen_clicked();
-        void ggggen_clicked();
-        void enCopy_clicked();
-        void enDelete_clicked();
-        void exchange_clicked();
+public slots:
+    void de_clicked();
+    void deCopy_clicked();
+    void deDelete_clicked();
+    void lggen_clicked();
+    void ggggen_clicked();
+    void enCopy_clicked();
+    void enDelete_clicked();
+    void exchange_clicked();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *ui;  
 };
 #endif // MAINWINDOW_H
