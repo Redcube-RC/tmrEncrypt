@@ -17,12 +17,15 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     std::string key_translater_3();
-    void de_3();
     void de_2();
-    void lggen_3();
+    void de_3();
+	void de_4();
     void lggen_2();
-    void ggggen_3();
+    void lggen_3();
+    void lggen_4();
     void ggggen_2();
+    void ggggen_3();
+    void ggggen_4();
 
 public slots:
     void de_clicked();

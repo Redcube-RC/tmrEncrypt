@@ -12,21 +12,9 @@
 #include <random>
 #include <vector>
 
-#include <QString>
-#include <QApplication>
-#include <QTextEdit>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QWidget>
-#include <QDebug>
 #include <QClipboard>
-#include <QLineEdit>
-#include <QRadioButton>
 
 using namespace std;
-
-// 用于只选取低8bit
-#define MOD 256
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -42,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->enCopy, SIGNAL(clicked()), this, SLOT(enCopy_clicked()));
     connect(ui->exchange, SIGNAL(clicked()), this, SLOT(exchange_clicked()));
 
-    ui->radioButtontmr3->setChecked(true);
+    ui->radioButtontmr4->setChecked(true);
     ui->keyEdittmr2->setEnabled(false);
     ui->labeltmr2->setEnabled(false);
 
@@ -54,6 +42,14 @@ MainWindow::MainWindow(QWidget *parent)
             ui->labeltmr3->setEnabled(true);
         }
     });
+    connect(ui->radioButtontmr4, &QRadioButton::toggled, [=](bool checked) {
+        if (checked) {
+            ui->keyEdittmr2->setEnabled(false);
+            ui->keyEdittmr3->setEnabled(true);
+            ui->labeltmr2->setEnabled(false);
+            ui->labeltmr3->setEnabled(true);
+        }
+        });
     connect(ui->radioButtontmr2, &QRadioButton::toggled, [=](bool checked){
         if (checked){
             ui->keyEdittmr3->setEnabled(false);
@@ -74,7 +70,7 @@ MainWindow::~MainWindow()
 static const long long pow62[10] = {1, 62, 3844, 238328, 14776336, 916132832, 56800235584, 3521614606208, 218340105584896, 13537086546263552};
 static const long pow16[8] = {1, 16, 256, 4096, 65536, 1048576, 16777216, 268435456};
 
-// 以下直至Line 439为csdn大佬 物联黄同学 的AES-128加密，非原创
+// 以下直至Line 441，为CSDN大佬 物联黄同学的AES-128加密，非原创
 // s 盒， 用于密钥生成和加密时的字节代换
 static const int S[16][16] = { 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
                               0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -132,11 +128,6 @@ int ch_to_int(char& ch)
     else if (ch >= 'a' && ch <= 'f')
     {
         ans = ch - 'a' + 10;
-    }
-    // 这个在本实验的样例中，其实不会运行到的
-    else if (ch >= 'A' && ch <= 'F')
-    {
-        ans = ch - 'A' + 10;
     }
     return ans;
 }
@@ -357,7 +348,7 @@ string int_ch2(int num)
 // 移位函数，其实就是在GF（2^8）的范围进行幂次操作
 int power(int num)
 {
-    int ans = (num << 1) % MOD;
+    int ans = (num << 1) % 256;
     // 如果第七位是1
     if (num & 0x80)
     {
@@ -390,7 +381,7 @@ vector<string> col_confuse(vector<string>& s)
 }
 
 // 先定义一个 aes 加密函数
-long long aes(string& plain_text, string& key, int textLength)
+string aes(string& plain_text, string& key)
 {
     // 先拓展密钥
     vector<string> keys = extend_key(key);
@@ -437,7 +428,11 @@ long long aes(string& plain_text, string& key, int textLength)
     {
         result += texts[i];
     }
-    return (str_long(result)%textLength+textLength)%textLength;
+    return result;
+}
+
+unsigned long long ll_to_ull (long long a){
+    return 9223372036854775808ULL+static_cast<unsigned long long>(a);
 }
 
 int keyToNumber(char a){
@@ -478,21 +473,24 @@ int awa(int a){
 void MainWindow::de_clicked(){
     ui->progressBar->show();
     if (ui->radioButtontmr3->isChecked()) MainWindow::de_3();
-    else MainWindow::de_2();
+    else if (ui->radioButtontmr2->isChecked()) MainWindow::de_2();
+    else MainWindow::de_4();
     ui->progressBar->hide();
 }
 
 void MainWindow::lggen_clicked(){
     ui->progressBar->show();
     if (ui->radioButtontmr3->isChecked()) MainWindow::lggen_3();
-    else MainWindow::lggen_2();
+    else if (ui->radioButtontmr2->isChecked()) MainWindow::lggen_2();
+    else MainWindow::lggen_4();
     ui->progressBar->hide();
 }
 
 void MainWindow::ggggen_clicked(){
     ui->progressBar->show();
     if (ui->radioButtontmr3->isChecked()) MainWindow::ggggen_3();
-    else MainWindow::ggggen_2();
+    else if (ui->radioButtontmr2->isChecked()) MainWindow::ggggen_2();
+    else MainWindow::ggggen_4();
     ui->progressBar->hide();
 }
 
@@ -648,9 +646,7 @@ void MainWindow::de_2() {
 
 void MainWindow::de_3() {
     string key = MainWindow::key_translater_3();
-
     string done;
-
     string inputCache = (ui->deEdit->toPlainText()).toUtf8().constData();
     ui->progressBar->setRange(0, inputCache.length() / 3);
     vector<string> inputchar(inputCache.length() / 3);
@@ -661,8 +657,7 @@ void MainWindow::de_3() {
         // 生成交换表
         string plain_text = int_to_chs(i);
         plain_text = string(32 - plain_text.length(), '0') + plain_text;
-        exchangeList[i] = aes(plain_text, key, inputCache.length() / 3);
-        //cout<<"exchangeList"<<i<<":"<<exchangeList[i]<<endl;
+        exchangeList[i] = (str_long(aes(plain_text, key))%(inputCache.length() / 3)+(inputCache.length() / 3))%(inputCache.length() / 3);
         ui->progressBar->setValue(i);
     }
     // 交换
@@ -691,7 +686,7 @@ void MainWindow::de_3() {
             for (int i = 0; i < input.length() / 6; ) {
                 if (lgg(de[i]) >= 32) {
                     i++;
-                    uint32_t result = ((lgg(de[i]) <= 32) ? 0 : 0x100000), index = 4;
+                    uint32_t result = ((lgg(de[i]) <= 33) ? 0 : 0x100000), index = 4;
                     for (int j = i; j <= i + 4; j++) {
                         result += lgg(de[j]) * pow16[index];
                         index--;
@@ -757,6 +752,225 @@ void MainWindow::de_3() {
     ui->enEdit->setPlainText(QString::fromUtf8(done));
 }
 
+void MainWindow::de_4() {
+    string key = MainWindow::key_translater_3();
+    string done;
+    long numCount;
+    string input = (ui->deEdit->toPlainText()).toUtf8().constData();
+    if (input.find("灵") != string::npos || input.find("感") != string::npos || input.find("菇") != string::npos ||
+        input.find("擦") != string::npos || input.find("刮") != string::npos || input.find("哩") != string::npos) {
+        numCount = input.length() / 6;
+        vector<int> num(numCount);
+        vector<long> exchangeList(numCount);
+        vector<int> shiftList(numCount);
+        ui->progressBar->setRange(0, numCount * 2);
+
+        bool InputCorrect = true;
+        for (long i = 0; i < numCount; i++) {
+            num[i] = lgg(input.substr(i * 6, 6));
+            if (num[i] == -1) InputCorrect = false;
+        }
+
+        // 生成交换表
+        long exchangeCount = 0;
+        for (int i = 0; exchangeCount < numCount; i++) {
+            string plain_text = int_to_chs(i);
+            plain_text = string(32 - plain_text.length(), '0') + plain_text;
+            string aesResult = aes(plain_text, key);
+            int exchangeLength = ceil(log2(static_cast<double>(numCount)) / 4); // 交换表中每个元素的十六进制位数
+            for (int j = 0; j <= 32 / exchangeLength && exchangeCount < numCount; j++, exchangeCount++) {
+                exchangeList[exchangeCount] = str_long(aesResult.substr(j * exchangeLength, exchangeLength));
+				ui->progressBar->setValue(exchangeCount);
+            }
+        }
+
+        // 进行交换
+        for (long i = numCount - 1; i >= 0; i--) {
+            long exchangeIndex = exchangeList[i] % numCount;
+            swap(num[i], num[exchangeIndex]);
+        }
+
+        // 生成偏移表
+        long shiftCount = 0;
+        for (long i = 0; shiftCount < numCount; i++) {
+            string plain_text = int_to_chs(i);
+            plain_text = string(32 - plain_text.length(), '0') + plain_text;
+            string aesResult = aes(plain_text, key);
+            for (int j = 0; j < 32 && shiftCount < numCount; j++, shiftCount++) {
+                shiftList[shiftCount] = ch_to_int(aesResult[j]);
+                ui->progressBar->setValue(numCount + shiftCount);
+            }
+        }
+
+        // 进行偏移
+        long count = 0; // 索引
+        for (long i = 0; i < numCount; i++) {
+            if (num[i] < 32) {
+                num[i] = awa(num[i] - shiftList[count]);
+                count++;
+            }
+        }
+
+        if (InputCorrect) {
+            for (int i = 0; i < input.length() / 6; ) {
+                if (num[i] >= 32) {
+                    i++;
+                    uint32_t result = ((num[i] <= 32) ? 0 : 0x100000), index = 4;
+                    for (int j = i; j <= i + 4; j++) {
+                        result += num[j] * pow16[index];
+                        index--;
+                    }
+                    i += 5;
+                    char32_t ch = static_cast<char32_t>(result);
+                    QString qstr = QString::fromUcs4(&ch, 1);
+                    done += qstr.toStdString();
+
+                }
+                else {
+                    uint32_t result = 0, index = 3;
+                    for (int j = i; j <= i + 3; j++) {
+                        result += num[j] * pow16[index];
+                        index--;
+                    }
+                    i += 4;
+                    char32_t ch = static_cast<char32_t>(result);
+                    QString qstr = QString::fromUcs4(&ch, 1);
+                    done += qstr.toStdString();
+                }
+            }
+        }
+    }
+    else if (input.find("咕") != string::npos || input.find("嘎") != string::npos) {
+        numCount = input.length() / 12;
+        vector<int> num(numCount);
+        vector<long> exchangeList(numCount);
+        vector<int> shiftList(numCount);
+        ui->progressBar->setRange(0, numCount * 2);
+
+        bool InputCorrect = true;
+        for (long i = 0; i < numCount; i++) {
+            num[i] = gggg(input.substr(i * 12, 12));
+            if (num[i] == -1) InputCorrect = false;
+        }
+
+        // 生成交换表
+        long exchangeCount = 0;
+        for (int i = 0; exchangeCount < numCount; i++) {
+            string plain_text = int_to_chs(i);
+            plain_text = string(32 - plain_text.length(), '0') + plain_text;
+            string aesResult = aes(plain_text, key);
+            int exchangeLength = ceil(log2(static_cast<double>(numCount)) / 4); // 交换表中每个元素的十六进制位数
+            for (int j = 0; j <= 32 / exchangeLength && exchangeCount < numCount; j++, exchangeCount++) {
+                exchangeList[exchangeCount] = str_long(aesResult.substr(j * exchangeLength, exchangeLength));
+                ui->progressBar->setValue(exchangeCount);
+            }
+        }
+
+        // 进行交换
+        for (long i = numCount - 1; i >= 0; i--) {
+            long exchangeIndex = exchangeList[i] % numCount;
+            swap(num[i], num[exchangeIndex]);
+        }
+
+        // 生成偏移表
+        long shiftCount = 0;
+        for (long i = 0; shiftCount < numCount; i++) {
+            string plain_text = int_to_chs(i);
+            plain_text = string(32 - plain_text.length(), '0') + plain_text;
+            string aesResult = aes(plain_text, key);
+            for (int j = 0; j < 32 && shiftCount < numCount; j++, shiftCount++) {
+                shiftList[shiftCount] = ch_to_int(aesResult[j]);
+                ui->progressBar->setValue(numCount + shiftCount);
+            }
+        }
+
+        // 进行偏移
+        for (long i = 0; i < numCount; i++) { num[i] = awa(num[i] - shiftList[i]); }
+
+        if (InputCorrect) {
+            for (int i = 0; i < numCount; ) {
+                uint32_t result = 0, index = 3;
+                for (int j = i; j <= i + 3; j++) {
+                    result += num[j] * pow16[index];
+                    index--;
+                }
+                if (result >= 0x2FE0 && result <= 0x2FEF) {
+                    result = ((result <= 0x2FE7) ? 0 : 0x100000), index = 4;
+                    i += 4;
+                    for (int j = i; j <= i + 4; j++) {
+                        result += num[j] * pow16[index];
+                        index--;
+                    }
+                    i += 5;
+                }
+                else {
+                    i += 4;
+                }
+                char32_t ch = static_cast<char32_t>(result);
+                QString qstr = QString::fromUcs4(&ch, 1);
+                done += qstr.toStdString();
+            }
+        }
+    }
+    ui->enEdit->setPlainText(QString::fromUtf8(done));
+}
+
+void MainWindow::lggen_2() {
+    int keyinput = 0;
+    int keyEditinput = (ui->keyEdittmr2->text()).toInt();
+    if (keyEditinput >= 0 && keyEditinput <= 65535) keyinput = keyEditinput;
+    int key[4];
+    for (int i = 3; i >= 0; i--) {
+        key[i] = (int)(keyinput / pow16[i]);
+        keyinput -= key[i] * pow16[i];
+    }
+
+    string en[36] = {
+        "灵灵", "灵感", "灵菇", "灵哩",
+        "感灵", "感感", "感菇", "感哩",
+        "菇灵", "菇感", "菇菇", "菇哩",
+        "哩灵", "哩感", "哩菇", "哩哩",
+        "灵刮", "灵擦", "感刮", "感擦",
+        "菇刮", "菇擦", "哩刮", "哩擦",
+        "刮灵", "刮感", "刮菇", "刮哩",
+        "擦灵", "擦感", "擦菇", "擦哩",
+        "刮刮", "刮擦", "擦刮", "擦擦"
+    };
+    QString qinput = ui->enEdit->toPlainText();
+    u32string u32input = qinput.toStdU32String();
+    vector<long> a(u32input.length());
+    string done;
+
+    for (int i = 0; i < u32input.length(); i++) {
+        char32_t ch = u32input[i];
+        a[i] = static_cast<uint32_t>(ch);
+    }
+
+
+    for (int j = 0; j < u32input.length(); j++) {
+        if (a[j] > 65536) {
+            done += en[rd(32, 35)];
+            for (int i = 7; i >= 0; i--) {
+                int result = a[j] / pow16[i];
+                if (i >= 4) result += key[i - 4];
+                else result += key[i];
+                if (result >= 16) result -= 16;
+                done += en[result + rd(0, 1) * 16];
+                a[j] -= pow16[i] * ((int)(a[j] / pow16[i]));
+            }
+        }
+        else {
+            for (int i = 3; i >= 0; i--) {
+                int result = a[j] / pow16[i] + key[i];
+                if (result >= 16) result -= 16;
+                done += en[result + rd(0, 1) * 16];
+                a[j] -= pow16[i] * ((int)(a[j] / pow16[i]));
+            }
+        }
+    }
+    ui->deEdit->setPlainText(QString::fromUtf8(done));
+}
+
 void MainWindow::lggen_3(){
     string key = MainWindow::key_translater_3();
     string en[36] = {
@@ -806,7 +1020,7 @@ void MainWindow::lggen_3(){
         // 生成交换表
         string plain_text = int_to_chs(i);
         plain_text = string(32 - plain_text.length(), '0') + plain_text;
-        exchangeList[i] = aes(plain_text, key, done.length() / 3);
+        exchangeList[i] = (str_long(aes(plain_text, key)) %(done.length() / 3)+(done.length() / 3))%(done.length() / 3);
         ui->progressBar->setValue(i);
     }
     // 交换
@@ -824,16 +1038,8 @@ void MainWindow::lggen_3(){
     ui->deEdit->setPlainText(QString::fromUtf8(result));
 }
 
-void MainWindow::lggen_2(){
-    int keyinput = 0;
-    int keyEditinput = (ui->keyEdittmr2->text()).toInt();
-    if (keyEditinput >= 0 && keyEditinput <= 65535) keyinput = keyEditinput;
-    int key[4];
-    for (int i = 3; i >= 0; i--) {
-        key[i] = (int)(keyinput / pow16[i]);
-        keyinput -= key[i] * pow16[i];
-    }
-
+void MainWindow::lggen_4() {
+    string key = MainWindow::key_translater_3();
     string en[36] = {
         "灵灵", "灵感", "灵菇", "灵哩",
         "感灵", "感感", "感菇", "感哩",
@@ -845,38 +1051,94 @@ void MainWindow::lggen_2(){
         "擦灵", "擦感", "擦菇", "擦哩",
         "刮刮", "刮擦", "擦刮", "擦擦"
     };
+    // 分割明文
     QString qinput = ui->enEdit->toPlainText();
     u32string u32input = qinput.toStdU32String();
-    vector<long> a(u32input.length());
-    string done;
+    vector<int> a(u32input.length());
+    long numCount = 0; // 计算总的数字个数
 
-    for (int i = 0; i < u32input.length(); i++){
+    for (long i = 0; i < u32input.length(); i++) {
         char32_t ch = u32input[i];
         a[i] = static_cast<uint32_t>(ch);
+		numCount += (a[i] >= 65536) ? 6 : 4;
     }
 
-
-    for (int j = 0; j < u32input.length(); j++){
-        if (a[j] > 65536) {
-            done += en[rd(32, 35)];
-            for (int i = 7; i >= 0; i--){
+    ui->progressBar->setRange(0, numCount * 2);
+    vector<int> num(numCount);
+	long count = 0; // 索引
+    for (long j = 0; j < u32input.length(); j++) {
+        if (a[j] >= 65536) {
+            num[count] = (a[j] <= 1048575) ? rd(32, 33) : rd(34, 35);
+            count++;
+            for (int i = 4; i >= 0; i--, count++) {
                 int result = a[j] / pow16[i];
-                if (i >= 4) result += key[i - 4];
-                else result += key[i];
-                if (result >= 16) result -= 16;
-                done += en[result+rd(0, 1)*16];
-                a[j] -= pow16[i] * ((int)(a[j] / pow16[i]));
+                num[count] = result;
+                a[j] -= pow16[i] * result;
             }
-        }else{
-            for (int i = 3; i >= 0; i--){
-                int result = a[j] / pow16[i] + key[i];
-                if (result >= 16) result -= 16;
-                done += en[result+rd(0, 1)*16];
-                a[j] -= pow16[i] * ((int)(a[j] / pow16[i]));
+        }
+        else {
+            for (int i = 3; i >= 0; i--, count++) {
+                int result = a[j] / pow16[i];
+                num[count] = result;
+                a[j] -= pow16[i] * result;
             }
         }
     }
-    ui->deEdit->setPlainText(QString::fromUtf8(done));
+    
+    // 生成偏移表
+    vector<int> shiftList(numCount);
+    long shiftCount = 0;
+    for (long i = 0; shiftCount < numCount; i++) {
+        string plain_text = int_to_chs(i);
+        plain_text = string(32 - plain_text.length(), '0') + plain_text;
+		string aesResult = aes(plain_text, key);
+        for (int j = 0; j < 32 && shiftCount < numCount; j++, shiftCount++) {
+            shiftList[shiftCount] = ch_to_int(aesResult[j]);
+            ui->progressBar->setValue(shiftCount);
+        }
+    }
+	
+    // 进行偏移
+    count = 0; // 索引
+    for (long i = 0; i < numCount; i++) {
+        if (num[i] < 32) {
+            num[i] = (num[i] + shiftList[count]) % 16;
+            count++;
+        }
+    }
+
+	// 生成交换表
+    vector<int> exchangeList(numCount);
+    long exchangeCount = 0;
+    for (int i = 0; exchangeCount < numCount; i++) {
+        string plain_text = int_to_chs(i);
+        plain_text = string(32 - plain_text.length(), '0') + plain_text;
+        string aesResult = aes(plain_text, key);
+        int exchangeLength = ceil(log2(static_cast<double>(numCount)) / 4); // 交换表中每个元素的十六进制位数
+        for (int j = 0; j <= 32 / exchangeLength && exchangeCount < numCount; j++, exchangeCount++) {
+            exchangeList[exchangeCount] = str_long(aesResult.substr(j * exchangeLength, exchangeLength));
+            ui->progressBar->setValue(numCount + exchangeCount);
+        }
+    }
+
+	// 进行交换
+	for (long i = 0; i < numCount; i++) {
+		long exchangeIndex = exchangeList[i] % numCount;
+		swap(num[i], num[exchangeIndex]);
+	}
+
+    // 合并
+    string result;
+    for (long i = 0; i < numCount; i++) {
+        if (num[i] < 32) {
+            result += en[num[i] + rd(0, 1) * 16];
+        }
+        else {
+            result += en[num[i]];
+        }
+    }
+
+    ui->deEdit->setPlainText(QString::fromUtf8(result));
 }
 
 void MainWindow::ggggen_2(){
@@ -930,7 +1192,7 @@ void MainWindow::ggggen_2(){
     ui->deEdit->setPlainText(QString::fromUtf8(done));
 }
 
-void MainWindow::ggggen_3(){
+void MainWindow::ggggen_3() {
     string key = MainWindow::key_translater_3();
 
     string en[16] = {
@@ -945,22 +1207,23 @@ void MainWindow::ggggen_3(){
     vector<long> a(u32input.length());
     string done;
 
-    for (int i = 0; i < u32input.length(); i++){
+    for (int i = 0; i < u32input.length(); i++) {
         char32_t ch = u32input[i];
         a[i] = static_cast<uint32_t>(ch);
     }
 
 
-    for (int j = 0; j < u32input.length(); j++){
-        if (a[j] >= 65536){
-            done += en[2]+en[15]+en[14]+en[(a[j] <= 1048575) ? rd(0, 7) : rd(8, 15)];
-            for (int i = 4; i >= 0; i--){
+    for (int j = 0; j < u32input.length(); j++) {
+        if (a[j] >= 65536) {
+            done += en[2] + en[15] + en[14] + en[(a[j] <= 1048575) ? rd(0, 7) : rd(8, 15)];
+            for (int i = 4; i >= 0; i--) {
                 int result = a[j] / pow16[i];
                 done += en[result];
                 a[j] -= pow16[i] * result;
             }
-        }else{
-            for (int i = 3; i >= 0; i--){
+        }
+        else {
+            for (int i = 3; i >= 0; i--) {
                 int result = a[j] / pow16[i];
                 done += en[result];
                 a[j] -= pow16[i] * result;
@@ -971,17 +1234,17 @@ void MainWindow::ggggen_3(){
     ui->progressBar->setRange(0, done.length() / 3);
     vector<string> donechar(done.length() / 3);
     vector<int> exchangeList(done.length() / 3);
-    for (int i = 0; i < done.length() / 3; i++){
+    for (int i = 0; i < done.length() / 3; i++) {
         // 分割密文
         donechar[i] = done.substr(i * 3, 3);
         // 生成交换表
         string plain_text = int_to_chs(i);
         plain_text = string(32 - plain_text.length(), '0') + plain_text;
-        exchangeList[i] = aes(plain_text, key, done.length() / 3);
+        exchangeList[i] = (str_long(aes(plain_text, key)) % (done.length() / 3) + (done.length() / 3)) % (done.length() / 3);
         ui->progressBar->setValue(i);
     }
     // 交换
-    for (int i = 0; i < done.length() / 3; i++){
+    for (int i = 0; i < done.length() / 3; i++) {
         string exchangeCache1 = donechar[i];
         string exchangeCache2 = donechar[exchangeList[i]];
         donechar[i] = exchangeCache2;
@@ -989,14 +1252,101 @@ void MainWindow::ggggen_3(){
     }
     // 合并
     string result = "";
-    for (int i = 0; i < done.length() / 3; i++){
+    for (int i = 0; i < done.length() / 3; i++) {
         result += donechar[i];
     }
     ui->deEdit->setPlainText(QString::fromUtf8(result));
 }
 
-void MainWindow::enDelete_clicked(){ui->enEdit->clear();}
-void MainWindow::deDelete_clicked(){ui->deEdit->clear();}
+void MainWindow::ggggen_4() {
+    string key = MainWindow::key_translater_3();
+
+    string en[16] = {
+        "咕咕咕咕", "咕咕咕嘎", "咕咕嘎咕", "咕咕嘎嘎",
+        "咕嘎咕咕", "咕嘎咕嘎", "咕嘎嘎咕", "咕嘎嘎嘎",
+        "嘎咕咕咕", "嘎咕咕嘎", "嘎咕嘎咕", "嘎咕嘎嘎",
+        "嘎嘎咕咕", "嘎嘎咕嘎", "嘎嘎嘎咕", "嘎嘎嘎嘎"
+    };
+
+    QString qinput = ui->enEdit->toPlainText();
+    u32string u32input = qinput.toStdU32String();
+    vector<int> a(u32input.length());
+    string done;
+    long numCount = 0; // 计算总的数字个数
+
+    for (long i = 0; i < u32input.length(); i++) {
+        char32_t ch = u32input[i];
+        a[i] = static_cast<uint32_t>(ch);
+        numCount += (a[i] >= 65536) ? 9 : 4;
+    }
+
+    ui->progressBar->setRange(0, numCount * 2);
+    vector<int> num(numCount);
+    long count = 0; // 索引
+    for (int j = 0; j < u32input.length(); j++) {
+        if (a[j] >= 65536) {
+            num[count] = 2, num[count + 1] = 15, num[count + 2] = 14, num[count + 3] = (a[j] <= 1048575) ? rd(0, 7) : rd(8, 15);
+            count += 4;
+            for (int i = 4; i >= 0; i--, count++) {
+                int result = a[j] / pow16[i];
+                num[count] = result;
+                a[j] -= pow16[i] * result;
+            }
+        }
+        else {
+            for (int i = 3; i >= 0; i--, count++) {
+                int result = a[j] / pow16[i];
+                num[count] = result;
+                a[j] -= pow16[i] * result;
+            }
+        }
+    }
+
+    // 生成偏移表
+    vector<int> shiftList(numCount);
+    long shiftCount = 0;
+    for (long i = 0; shiftCount < numCount; i++) {
+        string plain_text = int_to_chs(i);
+        plain_text = string(32 - plain_text.length(), '0') + plain_text;
+        string aesResult = aes(plain_text, key);
+        for (int j = 0; j < 32 && shiftCount < numCount; j++, shiftCount++) {
+            shiftList[shiftCount] = ch_to_int(aesResult[j]);
+            ui->progressBar->setValue(shiftCount);
+        }
+    }
+
+    // 进行偏移
+    for (long i = 0; i < numCount; i++) { num[i] = (num[i] + shiftList[i]) % 16; }
+
+    // 生成交换表
+    vector<int> exchangeList(numCount);
+    long exchangeCount = 0;
+    for (int i = 0; exchangeCount < numCount; i++) {
+        string plain_text = int_to_chs(i);
+        plain_text = string(32 - plain_text.length(), '0') + plain_text;
+        string aesResult = aes(plain_text, key);
+        int exchangeLength = ceil(log2(static_cast<double>(numCount)) / 4); // 交换表中每个元素的十六进制位数
+        for (int j = 0; j <= 32 / exchangeLength && exchangeCount < numCount; j++, exchangeCount++) {
+            exchangeList[exchangeCount] = str_long(aesResult.substr(j * exchangeLength, exchangeLength));
+            ui->progressBar->setValue(numCount + exchangeCount);
+        }
+    }
+
+    // 进行交换
+    for (long i = 0; i < numCount; i++) {
+        long exchangeIndex = exchangeList[i] % numCount;
+        swap(num[i], num[exchangeIndex]);
+    }
+
+    // 合并
+    string result;
+    for (long i = 0; i < numCount; i++) { result += en[num[i]]; }
+
+    ui->deEdit->setPlainText(QString::fromUtf8(result));
+}
+
+void MainWindow::enDelete_clicked() { ui->enEdit->clear(); }
+void MainWindow::deDelete_clicked() { ui->deEdit->clear(); }
 
 void MainWindow::exchange_clicked(){
     QString enEdit_cache = ui->enEdit->toPlainText();
@@ -1005,5 +1355,5 @@ void MainWindow::exchange_clicked(){
     ui->deEdit->setPlainText(enEdit_cache);
 }
 
-void MainWindow::enCopy_clicked(){QApplication::clipboard()->setText(ui->enEdit->toPlainText());}
-void MainWindow::deCopy_clicked(){QApplication::clipboard()->setText(ui->deEdit->toPlainText());}
+void MainWindow::enCopy_clicked() { QApplication::clipboard()->setText(ui->enEdit->toPlainText()); }
+void MainWindow::deCopy_clicked() { QApplication::clipboard()->setText(ui->deEdit->toPlainText()); }
