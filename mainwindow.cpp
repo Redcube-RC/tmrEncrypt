@@ -12,9 +12,37 @@
 #include <random>
 #include <vector>
 
+#include <QString>
+#include <QApplication>
+#include <QTextEdit>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QDebug>
 #include <QClipboard>
+#include <QLineEdit>
+#include <QRadioButton>
+#include <QMEssageBox>
 
 using namespace std;
+
+void MainWindow::setEnabled(bool key3){
+    ui->keyEdittmr2->setEnabled(false == key3);
+    ui->keyEdittmr3->setEnabled(true == key3);
+    ui->labeltmr2->setEnabled(false == key3);
+    ui->labeltmr3->setEnabled(true == key3);
+	ui->e1->setEnabled(true == define);
+    ui->e2->setEnabled(true == define);
+    ui->e3->setEnabled(true == define);
+    ui->e4->setEnabled(true == define);
+    ui->e5->setEnabled(true == define);
+    ui->e6->setEnabled(true == define);
+    ui->e7->setEnabled(true == define);
+    ui->e8->setEnabled(true == define);
+    ui->labelgggg->setEnabled(true == define);
+    ui->labellgg->setEnabled(true == define);
+    ui->labeldefine->setEnabled(true == define); // 好像写了很多废话，懒得改了
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -36,26 +64,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->radioButtontmr3, &QRadioButton::toggled, [=](bool checked){
         if (checked) {
-            ui->keyEdittmr2->setEnabled(false);
-            ui->keyEdittmr3->setEnabled(true);
-            ui->labeltmr2->setEnabled(false);
-            ui->labeltmr3->setEnabled(true);
+            define = false;
+            setEnabled(true);
         }
     });
     connect(ui->radioButtontmr4, &QRadioButton::toggled, [=](bool checked) {
         if (checked) {
-            ui->keyEdittmr2->setEnabled(false);
-            ui->keyEdittmr3->setEnabled(true);
-            ui->labeltmr2->setEnabled(false);
-            ui->labeltmr3->setEnabled(true);
+            define = true;
+            setEnabled(true);
         }
         });
     connect(ui->radioButtontmr2, &QRadioButton::toggled, [=](bool checked){
-        if (checked){
-            ui->keyEdittmr3->setEnabled(false);
-            ui->keyEdittmr2->setEnabled(true);
-            ui->labeltmr3->setEnabled(false);
-            ui->labeltmr2->setEnabled(true);
+        if (checked) {
+            define = false;
+            setEnabled(false);
         }
     });
 
@@ -70,7 +92,6 @@ MainWindow::~MainWindow()
 static const long long pow62[10] = {1, 62, 3844, 238328, 14776336, 916132832, 56800235584, 3521614606208, 218340105584896, 13537086546263552};
 static const long pow16[8] = {1, 16, 256, 4096, 65536, 1048576, 16777216, 268435456};
 
-// 以下直至Line 441，为CSDN大佬 物联黄同学的AES-128加密，非原创
 // s 盒， 用于密钥生成和加密时的字节代换
 static const int S[16][16] = { 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
                               0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -431,10 +452,6 @@ string aes(string& plain_text, string& key)
     return result;
 }
 
-unsigned long long ll_to_ull (long long a){
-    return 9223372036854775808ULL+static_cast<unsigned long long>(a);
-}
-
 int keyToNumber(char a){
     int num = static_cast<int>(a);
     if (num >= 48 && num <= 57) return num - 48;
@@ -443,22 +460,79 @@ int keyToNumber(char a){
     else return 0;
 }
 
-int lgg(string a) {
-    string en[36] = {
-        "灵灵", "灵感", "灵菇", "灵哩",
-        "感灵", "感感", "感菇", "感哩",
-        "菇灵", "菇感", "菇菇", "菇哩",
-        "哩灵", "哩感", "哩菇", "哩哩",
-        "灵刮", "灵擦", "感刮", "感擦",
-        "菇刮", "菇擦", "哩刮", "哩擦",
-        "刮灵", "刮感", "刮菇", "刮哩",
-        "擦灵", "擦感", "擦菇", "擦哩",
-        "刮刮", "刮擦", "擦刮", "擦擦"
-    };
+void MainWindow::enList() {
+    if ((ui->e1->text()).toStdString() != "" && define) en[0] = (ui->e1->text()).toStdString(); else en[0] = "灵"; // 灵
+    if ((ui->e2->text()).toStdString() != "" && define) en[1] = (ui->e2->text()).toStdString(); else en[1] = "感"; // 感
+    if ((ui->e3->text()).toStdString() != "" && define) en[2] = (ui->e3->text()).toStdString(); else en[2] = "菇"; // 菇
+    if ((ui->e4->text()).toStdString() != "" && define) en[3] = (ui->e4->text()).toStdString(); else en[3] = "哩"; // 哩
+    if ((ui->e5->text()).toStdString() != "" && define) en[4] = (ui->e5->text()).toStdString(); else en[4] = "刮"; // 刮
+    if ((ui->e6->text()).toStdString() != "" && define) en[5] = (ui->e6->text()).toStdString(); else en[5] = "擦"; // 擦
+    if ((ui->e7->text()).toStdString() != "" && define) en[6] = (ui->e7->text()).toStdString(); else en[6] = "咕"; // 咕
+    if ((ui->e8->text()).toStdString() != "" && define) en[7] = (ui->e8->text()).toStdString(); else en[7] = "嘎"; // 嘎
+
+    bool legal = true;
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
+
+    for (int i = 0; i < 8 && legal; i++) { 
+        if (converter.from_bytes(en[i]).size() != 1) {
+            legal = false;
+            QMessageBox::critical(nullptr, "错误", "自定义密文组成字符不得大于一个字符");
+            break;
+        }
+        for (int j = 0; j < 8; j++) {
+            if (i != j && en[i] == en[j]) {
+                legal = false;
+                QMessageBox::critical(nullptr, "错误", "自定义密文组成字符有重复");
+                break;
+            }
+        }
+    }
+
+    if (!legal || !define) {
+        en[0] = "灵", en[1] = "感", en[2] = "菇", en[3] = "哩", en[4] = "刮", en[5] = "擦", en[6] = "咕", en[7] = "嘎";
+    }
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            lggen[4 * i + j] = en[i] + en[j];
+        }
+    }
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 2; j++) {
+            lggen[16 + 2 * i + j] = en[i] + en[j + 4];
+            lggen[24 + 4 * j + i] = en[j + 4] + en[i];
+        }
+    }
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            lggen[32 + 2 * i + j] = en[i + 4] + en[j + 4];
+        }
+    }
+
+    for (int a = 0; a < 2; a++) {
+        for (int b = 0; b < 2; b++) {
+            for (int c = 0; c < 2; c++) {
+                for (int d = 0; d < 2; d++) {
+                    ggggen[8 * a + 4 * b + 2 * c + d] = en[a + 6] + en[b + 6] + en[c + 6] + en[d + 6];
+                }
+            }
+        }
+    }
+}
+
+int MainWindow::lgg(string a) {
     for (int i = 0; i <= 35; i++) {
-        if (en[i] == a) {
+        if (lggen[i] == a) {
             if (i >= 16 && i <= 31) return i - 16;
             else return i;
+        }
+    }
+    return -1;
+}
+
+int MainWindow::gggg(string a) {
+    for (int i = 0; i <= 15; i++) {
+        if (ggggen[i] == a) {
+            return i;
         }
     }
     return -1;
@@ -528,21 +602,6 @@ string MainWindow::key_translater_3(){
     return key;
 }
 
-int gggg(string a) {
-    string en[16] = {
-        "咕咕咕咕", "咕咕咕嘎", "咕咕嘎咕", "咕咕嘎嘎",
-        "咕嘎咕咕", "咕嘎咕嘎", "咕嘎嘎咕", "咕嘎嘎嘎",
-        "嘎咕咕咕", "嘎咕咕嘎", "嘎咕嘎咕", "嘎咕嘎嘎",
-        "嘎嘎咕咕", "嘎嘎咕嘎", "嘎嘎嘎咕", "嘎嘎嘎嘎"
-    };
-    for (int i = 0; i <= 15; i++) {
-        if (en[i] == a) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 int rd(int a, int b) {
     static random_device rd;
     static mt19937 gen(rd());
@@ -551,6 +610,7 @@ int rd(int a, int b) {
 }
 
 void MainWindow::de_2() {
+    enList();
     int keyinput = 0;
     int keyEditinput = (ui->keyEdittmr2->text()).toInt();
     if (keyEditinput >= 0 && keyEditinput <= 65535) keyinput = keyEditinput;
@@ -645,6 +705,7 @@ void MainWindow::de_2() {
 }
 
 void MainWindow::de_3() {
+    enList();
     string key = MainWindow::key_translater_3();
     string done;
     string inputCache = (ui->deEdit->toPlainText()).toUtf8().constData();
@@ -754,12 +815,14 @@ void MainWindow::de_3() {
 
 void MainWindow::de_4() {
     string key = MainWindow::key_translater_3();
+    enList();
     string done;
     long numCount;
-    string input = (ui->deEdit->toPlainText()).toUtf8().constData();
-    if (input.find("灵") != string::npos || input.find("感") != string::npos || input.find("菇") != string::npos ||
-        input.find("擦") != string::npos || input.find("刮") != string::npos || input.find("哩") != string::npos) {
-        numCount = input.length() / 6;
+    string input = ui->deEdit->toPlainText().toUtf8().constData();
+    u32string u32input = ui->deEdit->toPlainText().toStdU32String();
+    if (input.find(lggen[0]) != string::npos || input.find(lggen[1]) != string::npos || input.find(lggen[2]) != string::npos ||
+        input.find(lggen[3]) != string::npos || input.find(lggen[4]) != string::npos || input.find(lggen[5]) != string::npos) {
+        numCount = u32input.size() / 2;
         vector<int> num(numCount);
         vector<long> exchangeList(numCount);
         vector<int> shiftList(numCount);
@@ -767,7 +830,7 @@ void MainWindow::de_4() {
 
         bool InputCorrect = true;
         for (long i = 0; i < numCount; i++) {
-            num[i] = lgg(input.substr(i * 6, 6));
+            num[i] = lgg(QString::fromStdU32String(u32input.substr(i * 2, 2)).toStdString());
             if (num[i] == -1) InputCorrect = false;
         }
 
@@ -812,7 +875,7 @@ void MainWindow::de_4() {
         }
 
         if (InputCorrect) {
-            for (int i = 0; i < input.length() / 6; ) {
+            for (int i = 0; i < numCount; ) {
                 if (num[i] >= 32) {
                     i++;
                     uint32_t result = ((num[i] <= 32) ? 0 : 0x100000), index = 4;
@@ -840,8 +903,8 @@ void MainWindow::de_4() {
             }
         }
     }
-    else if (input.find("咕") != string::npos || input.find("嘎") != string::npos) {
-        numCount = input.length() / 12;
+    else if (input.find(ggggen[0]) != string::npos || input.find(ggggen[1]) != string::npos) {
+        numCount = u32input.size() / 4;
         vector<int> num(numCount);
         vector<long> exchangeList(numCount);
         vector<int> shiftList(numCount);
@@ -849,7 +912,7 @@ void MainWindow::de_4() {
 
         bool InputCorrect = true;
         for (long i = 0; i < numCount; i++) {
-            num[i] = gggg(input.substr(i * 12, 12));
+            num[i] = gggg(QString::fromStdU32String(u32input.substr(i * 4, 4)).toStdString());
             if (num[i] == -1) InputCorrect = false;
         }
 
@@ -916,6 +979,7 @@ void MainWindow::de_4() {
 }
 
 void MainWindow::lggen_2() {
+    enList();
     int keyinput = 0;
     int keyEditinput = (ui->keyEdittmr2->text()).toInt();
     if (keyEditinput >= 0 && keyEditinput <= 65535) keyinput = keyEditinput;
@@ -925,17 +989,6 @@ void MainWindow::lggen_2() {
         keyinput -= key[i] * pow16[i];
     }
 
-    string en[36] = {
-        "灵灵", "灵感", "灵菇", "灵哩",
-        "感灵", "感感", "感菇", "感哩",
-        "菇灵", "菇感", "菇菇", "菇哩",
-        "哩灵", "哩感", "哩菇", "哩哩",
-        "灵刮", "灵擦", "感刮", "感擦",
-        "菇刮", "菇擦", "哩刮", "哩擦",
-        "刮灵", "刮感", "刮菇", "刮哩",
-        "擦灵", "擦感", "擦菇", "擦哩",
-        "刮刮", "刮擦", "擦刮", "擦擦"
-    };
     QString qinput = ui->enEdit->toPlainText();
     u32string u32input = qinput.toStdU32String();
     vector<long> a(u32input.length());
@@ -949,13 +1002,13 @@ void MainWindow::lggen_2() {
 
     for (int j = 0; j < u32input.length(); j++) {
         if (a[j] > 65536) {
-            done += en[rd(32, 35)];
+            done += lggen[rd(32, 35)];
             for (int i = 7; i >= 0; i--) {
                 int result = a[j] / pow16[i];
                 if (i >= 4) result += key[i - 4];
                 else result += key[i];
                 if (result >= 16) result -= 16;
-                done += en[result + rd(0, 1) * 16];
+                done += lggen[result + rd(0, 1) * 16];
                 a[j] -= pow16[i] * ((int)(a[j] / pow16[i]));
             }
         }
@@ -963,7 +1016,7 @@ void MainWindow::lggen_2() {
             for (int i = 3; i >= 0; i--) {
                 int result = a[j] / pow16[i] + key[i];
                 if (result >= 16) result -= 16;
-                done += en[result + rd(0, 1) * 16];
+                done += lggen[result + rd(0, 1) * 16];
                 a[j] -= pow16[i] * ((int)(a[j] / pow16[i]));
             }
         }
@@ -973,17 +1026,7 @@ void MainWindow::lggen_2() {
 
 void MainWindow::lggen_3(){
     string key = MainWindow::key_translater_3();
-    string en[36] = {
-        "灵灵", "灵感", "灵菇", "灵哩",
-        "感灵", "感感", "感菇", "感哩",
-        "菇灵", "菇感", "菇菇", "菇哩",
-        "哩灵", "哩感", "哩菇", "哩哩",
-        "灵刮", "灵擦", "感刮", "感擦",
-        "菇刮", "菇擦", "哩刮", "哩擦",
-        "刮灵", "刮感", "刮菇", "刮哩",
-        "擦灵", "擦感", "擦菇", "擦哩",
-        "刮刮", "刮擦", "擦刮", "擦擦"
-    };
+    enList();
     // 分割明文
     QString qinput = ui->enEdit->toPlainText();
     u32string u32input = qinput.toStdU32String();
@@ -997,16 +1040,16 @@ void MainWindow::lggen_3(){
 
     for (int j = 0; j < u32input.length(); j++){
         if (a[j] >= 65536) {
-            done += en[(a[j] <= 1048575) ? rd(32, 33) : rd(34, 35)];
+            done += lggen[(a[j] <= 1048575) ? rd(32, 33) : rd(34, 35)];
             for (int i = 4; i >= 0; i--){
                 int result = a[j] / pow16[i];
-                done += en[result+rd(0, 1)*16];
+                done += lggen[result+rd(0, 1)*16];
                 a[j] -= pow16[i] * result;
             }
         }else{
             for (int i = 3; i >= 0; i--){
                 int result = a[j] / pow16[i];
-                done += en[result+rd(0, 1)*16];
+                done += lggen[result+rd(0, 1)*16];
                 a[j] -= pow16[i] * result;
             }
         }
@@ -1040,17 +1083,7 @@ void MainWindow::lggen_3(){
 
 void MainWindow::lggen_4() {
     string key = MainWindow::key_translater_3();
-    string en[36] = {
-        "灵灵", "灵感", "灵菇", "灵哩",
-        "感灵", "感感", "感菇", "感哩",
-        "菇灵", "菇感", "菇菇", "菇哩",
-        "哩灵", "哩感", "哩菇", "哩哩",
-        "灵刮", "灵擦", "感刮", "感擦",
-        "菇刮", "菇擦", "哩刮", "哩擦",
-        "刮灵", "刮感", "刮菇", "刮哩",
-        "擦灵", "擦感", "擦菇", "擦哩",
-        "刮刮", "刮擦", "擦刮", "擦擦"
-    };
+    enList();
     // 分割明文
     QString qinput = ui->enEdit->toPlainText();
     u32string u32input = qinput.toStdU32String();
@@ -1131,10 +1164,10 @@ void MainWindow::lggen_4() {
     string result;
     for (long i = 0; i < numCount; i++) {
         if (num[i] < 32) {
-            result += en[num[i] + rd(0, 1) * 16];
+            result += lggen[num[i] + rd(0, 1) * 16];
         }
         else {
-            result += en[num[i]];
+            result += lggen[num[i]];
         }
     }
 
@@ -1142,6 +1175,7 @@ void MainWindow::lggen_4() {
 }
 
 void MainWindow::ggggen_2(){
+    enList();
     int keyinput = 0;
     int keyEditinput = (ui->keyEdittmr2->text()).toInt();
     if (keyEditinput >= 0 && keyEditinput <= 65535) keyinput = keyEditinput;
@@ -1151,12 +1185,6 @@ void MainWindow::ggggen_2(){
         keyinput -= key[i] * pow16[i];
     }
 
-    string en[16] = {
-        "咕咕咕咕", "咕咕咕嘎", "咕咕嘎咕", "咕咕嘎嘎",
-        "咕嘎咕咕", "咕嘎咕嘎", "咕嘎嘎咕", "咕嘎嘎嘎",
-        "嘎咕咕咕", "嘎咕咕嘎", "嘎咕嘎咕", "嘎咕嘎嘎",
-        "嘎嘎咕咕", "嘎嘎咕嘎", "嘎嘎嘎咕", "嘎嘎嘎嘎"
-    };
 
     QString qinput = ui->enEdit->toPlainText();
     u32string u32input = qinput.toStdU32String();
@@ -1171,20 +1199,20 @@ void MainWindow::ggggen_2(){
 
     for (int j = 0; j < u32input.length(); j++){
         if (a[j] > 65536){
-            done += en[awa(2+key[3])]+en[awa(15+key[2])]+en[awa(14+key[1])]+en[rd(0, 15)];
+            done += ggggen[awa(2+key[3])]+ggggen[awa(15+key[2])]+ggggen[awa(14+key[1])]+ggggen[rd(0, 15)];
             for (int i = 7; i >= 0; i--){
                 int result = a[j] / pow16[i];
                 if (i >= 4) result += key[i - 4];
                 else result += key[i];
                 if (result >= 16) result -= 16;
-                done += en[result];
+                done += ggggen[result];
                 a[j] -= pow16[i] * ((int)(a[j] / pow16[i]));
             }
         }else{
             for (int i = 3; i >= 0; i--){
                 int result = a[j] / pow16[i] + key[i];
                 if (result >= 16) result -= 16;
-                done += en[result];
+                done += ggggen[result];
                 a[j] -= pow16[i] * ((int)(a[j] / pow16[i]));
             }
         }
@@ -1194,14 +1222,7 @@ void MainWindow::ggggen_2(){
 
 void MainWindow::ggggen_3() {
     string key = MainWindow::key_translater_3();
-
-    string en[16] = {
-        "咕咕咕咕", "咕咕咕嘎", "咕咕嘎咕", "咕咕嘎嘎",
-        "咕嘎咕咕", "咕嘎咕嘎", "咕嘎嘎咕", "咕嘎嘎嘎",
-        "嘎咕咕咕", "嘎咕咕嘎", "嘎咕嘎咕", "嘎咕嘎嘎",
-        "嘎嘎咕咕", "嘎嘎咕嘎", "嘎嘎嘎咕", "嘎嘎嘎嘎"
-    };
-
+    enList();
     QString qinput = ui->enEdit->toPlainText();
     u32string u32input = qinput.toStdU32String();
     vector<long> a(u32input.length());
@@ -1215,17 +1236,17 @@ void MainWindow::ggggen_3() {
 
     for (int j = 0; j < u32input.length(); j++) {
         if (a[j] >= 65536) {
-            done += en[2] + en[15] + en[14] + en[(a[j] <= 1048575) ? rd(0, 7) : rd(8, 15)];
+            done += ggggen[2] + ggggen[15] + ggggen[14] + ggggen[(a[j] <= 1048575) ? rd(0, 7) : rd(8, 15)];
             for (int i = 4; i >= 0; i--) {
                 int result = a[j] / pow16[i];
-                done += en[result];
+                done += ggggen[result];
                 a[j] -= pow16[i] * result;
             }
         }
         else {
             for (int i = 3; i >= 0; i--) {
                 int result = a[j] / pow16[i];
-                done += en[result];
+                done += ggggen[result];
                 a[j] -= pow16[i] * result;
             }
         }
@@ -1260,14 +1281,7 @@ void MainWindow::ggggen_3() {
 
 void MainWindow::ggggen_4() {
     string key = MainWindow::key_translater_3();
-
-    string en[16] = {
-        "咕咕咕咕", "咕咕咕嘎", "咕咕嘎咕", "咕咕嘎嘎",
-        "咕嘎咕咕", "咕嘎咕嘎", "咕嘎嘎咕", "咕嘎嘎嘎",
-        "嘎咕咕咕", "嘎咕咕嘎", "嘎咕嘎咕", "嘎咕嘎嘎",
-        "嘎嘎咕咕", "嘎嘎咕嘎", "嘎嘎嘎咕", "嘎嘎嘎嘎"
-    };
-
+    MainWindow::enList();
     QString qinput = ui->enEdit->toPlainText();
     u32string u32input = qinput.toStdU32String();
     vector<int> a(u32input.length());
@@ -1340,7 +1354,7 @@ void MainWindow::ggggen_4() {
 
     // 合并
     string result;
-    for (long i = 0; i < numCount; i++) { result += en[num[i]]; }
+    for (long i = 0; i < numCount; i++) { result += ggggen[num[i]]; }
 
     ui->deEdit->setPlainText(QString::fromUtf8(result));
 }
