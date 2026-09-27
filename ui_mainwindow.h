@@ -169,7 +169,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "\351\253\230\346\235\276\347\201\257\346\226\207\346\234\254\345\212\240\345\257\206\345\231\2504.1", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "\351\253\230\346\235\276\347\201\257\346\226\207\346\234\254\345\212\240\345\257\206\345\231\2504.2", nullptr));
         lggen->setText(QCoreApplication::translate("MainWindow", "\347\201\265\346\204\237\350\217\207\345\212\240\345\257\206\346\263\225\342\206\223", nullptr));
         ggggen->setText(QCoreApplication::translate("MainWindow", "\345\222\225\345\222\225\345\230\216\345\230\216\345\212\240\345\257\206\346\263\225\342\206\223", nullptr));
         deEdit->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"

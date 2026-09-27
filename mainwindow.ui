@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>高松灯文本加密器4.1</string>
+   <string>高松灯文本加密器4.2</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="lggen">
