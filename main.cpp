@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "cli.h"
+#include "aes.h"
 
 #include <QApplication>
 #include <QCoreApplication>

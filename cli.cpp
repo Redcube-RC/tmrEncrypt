@@ -222,7 +222,7 @@ static vector<string> col_confuse(vector<string>& s) {
     return ans;
 }
 
-static string aes(string& plain_text, string& key) {
+static std::string aes(string& plain_text, string& key) {
     vector<string> keys = extend_key(key);
     int index = 0;
     vector<string> texts = group_key(plain_text);
