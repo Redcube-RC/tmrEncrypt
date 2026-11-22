@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 6.11.1
+** Created by: Qt User Interface Compiler version 6.10.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -11,12 +11,12 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QRadioButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
@@ -38,14 +38,10 @@ public:
     QPushButton *enDelete;
     QPushButton *enCopy;
     QLabel *labeltmr3;
-    QLineEdit *keyEdittmr2;
-    QRadioButton *radioButtontmr2;
-    QRadioButton *radioButtontmr3;
     QLabel *label_2;
     QLabel *labeltmr2;
-    QLineEdit *keyEdittmr3;
+    QLineEdit *keyEdit;
     QProgressBar *progressBar;
-    QRadioButton *radioButtontmr4;
     QLineEdit *e1;
     QLineEdit *e2;
     QLineEdit *e3;
@@ -57,6 +53,7 @@ public:
     QLabel *labellgg;
     QLabel *labelgggg;
     QLabel *labeldefine;
+    QComboBox *algo;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -98,32 +95,20 @@ public:
         enCopy->setGeometry(QRect(490, 80, 75, 23));
         labeltmr3 = new QLabel(centralwidget);
         labeltmr3->setObjectName("labeltmr3");
-        labeltmr3->setGeometry(QRect(500, 260, 171, 16));
-        keyEdittmr2 = new QLineEdit(centralwidget);
-        keyEdittmr2->setObjectName("keyEdittmr2");
-        keyEdittmr2->setGeometry(QRect(500, 190, 113, 21));
-        radioButtontmr2 = new QRadioButton(centralwidget);
-        radioButtontmr2->setObjectName("radioButtontmr2");
-        radioButtontmr2->setGeometry(QRect(490, 150, 95, 19));
-        radioButtontmr3 = new QRadioButton(centralwidget);
-        radioButtontmr3->setObjectName("radioButtontmr3");
-        radioButtontmr3->setGeometry(QRect(490, 220, 95, 19));
+        labeltmr3->setGeometry(QRect(500, 200, 171, 16));
         label_2 = new QLabel(centralwidget);
         label_2->setObjectName("label_2");
-        label_2->setGeometry(QRect(490, 130, 71, 16));
+        label_2->setGeometry(QRect(500, 160, 71, 16));
         labeltmr2 = new QLabel(centralwidget);
         labeltmr2->setObjectName("labeltmr2");
-        labeltmr2->setGeometry(QRect(500, 170, 141, 16));
-        keyEdittmr3 = new QLineEdit(centralwidget);
-        keyEdittmr3->setObjectName("keyEdittmr3");
-        keyEdittmr3->setGeometry(QRect(500, 280, 113, 21));
+        labeltmr2->setGeometry(QRect(500, 200, 141, 16));
+        keyEdit = new QLineEdit(centralwidget);
+        keyEdit->setObjectName("keyEdit");
+        keyEdit->setGeometry(QRect(500, 220, 113, 21));
         progressBar = new QProgressBar(centralwidget);
         progressBar->setObjectName("progressBar");
         progressBar->setGeometry(QRect(490, 560, 171, 23));
         progressBar->setValue(24);
-        radioButtontmr4 = new QRadioButton(centralwidget);
-        radioButtontmr4->setObjectName("radioButtontmr4");
-        radioButtontmr4->setGeometry(QRect(490, 240, 95, 19));
         e1 = new QLineEdit(centralwidget);
         e1->setObjectName("e1");
         e1->setGeometry(QRect(500, 360, 21, 23));
@@ -157,6 +142,13 @@ public:
         labeldefine = new QLabel(centralwidget);
         labeldefine->setObjectName("labeldefine");
         labeldefine->setGeometry(QRect(500, 320, 171, 16));
+        algo = new QComboBox(centralwidget);
+        algo->addItem(QString());
+        algo->addItem(QString());
+        algo->addItem(QString());
+        algo->addItem(QString());
+        algo->setObjectName("algo");
+        algo->setGeometry(QRect(500, 180, 69, 22));
         MainWindow->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
@@ -169,7 +161,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "\351\253\230\346\235\276\347\201\257\346\226\207\346\234\254\345\212\240\345\257\206\345\231\2504.2", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "\351\253\230\346\235\276\347\201\257\346\226\207\346\234\254\345\212\240\345\257\206\345\231\2505.0", nullptr));
         lggen->setText(QCoreApplication::translate("MainWindow", "\347\201\265\346\204\237\350\217\207\345\212\240\345\257\206\346\263\225\342\206\223", nullptr));
         ggggen->setText(QCoreApplication::translate("MainWindow", "\345\222\225\345\222\225\345\230\216\345\230\216\345\212\240\345\257\206\346\263\225\342\206\223", nullptr));
         deEdit->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -187,14 +179,16 @@ public:
         enDelete->setText(QCoreApplication::translate("MainWindow", "\346\270\205\351\231\244", nullptr));
         enCopy->setText(QCoreApplication::translate("MainWindow", "\344\270\200\351\224\256\345\244\215\345\210\266", nullptr));
         labeltmr3->setText(QCoreApplication::translate("MainWindow", "\350\257\267\350\276\223\345\205\245\345\257\206\351\222\245\357\274\210\350\213\261\346\226\207\346\225\260\345\255\227\357\274\211\357\274\232", nullptr));
-        radioButtontmr2->setText(QCoreApplication::translate("MainWindow", "tmr2", nullptr));
-        radioButtontmr3->setText(QCoreApplication::translate("MainWindow", "tmr3", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "\345\212\240\345\257\206\346\226\271\345\274\217\357\274\232", nullptr));
         labeltmr2->setText(QCoreApplication::translate("MainWindow", "\350\257\267\350\276\223\345\205\245\345\257\206\351\222\245\357\274\2100~65535\357\274\211\357\274\232", nullptr));
-        radioButtontmr4->setText(QCoreApplication::translate("MainWindow", "tmr4", nullptr));
         labellgg->setText(QCoreApplication::translate("MainWindow", "\346\236\204\346\210\220\347\201\265\346\204\237\350\217\207\345\274\217\345\257\206\346\226\207\347\232\204\345\205\255\345\255\227\357\274\232", nullptr));
         labelgggg->setText(QCoreApplication::translate("MainWindow", "\346\236\204\346\210\220\345\222\225\345\222\225\345\230\216\345\230\216\345\274\217\345\257\206\346\226\207\347\232\204\344\270\244\345\255\227\357\274\232", nullptr));
         labeldefine->setText(QCoreApplication::translate("MainWindow", "\350\207\252\345\256\232\344\271\211", nullptr));
+        algo->setItemText(0, QCoreApplication::translate("MainWindow", "tmr5", nullptr));
+        algo->setItemText(1, QCoreApplication::translate("MainWindow", "tmr4", nullptr));
+        algo->setItemText(2, QCoreApplication::translate("MainWindow", "tmr3", nullptr));
+        algo->setItemText(3, QCoreApplication::translate("MainWindow", "tmr2", nullptr));
+
     } // retranslateUi
 
 };

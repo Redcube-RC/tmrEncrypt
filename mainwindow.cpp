@@ -29,10 +29,8 @@
 using namespace std;
 
 void MainWindow::setEnabled(bool key3){
-    ui->keyEdittmr2->setEnabled(!key3);
-    ui->keyEdittmr3->setEnabled(key3);
-    ui->labeltmr2->setEnabled(!key3);
-    ui->labeltmr3->setEnabled(key3);
+    ui->labeltmr2->setVisible(!key3);
+    ui->labeltmr3->setVisible(key3);
     ui->e1->setEnabled(define);
     ui->e2->setEnabled(define);
     ui->e3->setEnabled(define);
@@ -59,31 +57,26 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->enDelete, SIGNAL(clicked()), this, SLOT(enDelete_clicked()));
     connect(ui->enCopy, SIGNAL(clicked()), this, SLOT(enCopy_clicked()));
     connect(ui->exchange, SIGNAL(clicked()), this, SLOT(exchange_clicked()));
-
-    ui->radioButtontmr4->setChecked(true);
-    ui->keyEdittmr2->setEnabled(false);
-    ui->labeltmr2->setEnabled(false);
-
-    connect(ui->radioButtontmr3, &QRadioButton::toggled, [=](bool checked){
-        if (checked) {
-            define = false;
-            setEnabled(true);
-        }
-    });
-    connect(ui->radioButtontmr4, &QRadioButton::toggled, [=](bool checked) {
-        if (checked) {
-            define = true;
-            setEnabled(true);
-        }
-        });
-    connect(ui->radioButtontmr2, &QRadioButton::toggled, [=](bool checked){
-        if (checked) {
-            define = false;
-            setEnabled(false);
-        }
-    });
+    connect(ui->algo, SIGNAL(currentIndexChanged()), this, SLOT(on_algo_currentIndexChanged(int index)));
 
     ui->progressBar->hide();
+    ui->labeltmr2->hide();
+}
+
+
+void MainWindow::on_algo_currentIndexChanged(int index)
+{
+    index = ui->algo->currentIndex();
+    if (index == 0 || index == 1){
+        define = true;
+        setEnabled(true);
+    }else if (index == 2){
+        define = false;
+        setEnabled(true);
+    }else if (index == 3){
+        define = false;
+        setEnabled(false);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -188,31 +181,34 @@ int awa(int a){
 
 void MainWindow::de_clicked(){
     ui->progressBar->show();
-    if (ui->radioButtontmr3->isChecked()) MainWindow::de_3();
-    else if (ui->radioButtontmr2->isChecked()) MainWindow::de_2();
-    else MainWindow::de_4();
+    if (ui->algo->currentIndex() == 0) de_5();
+    else if (ui->algo->currentIndex() == 1) de_4();
+    else if (ui->algo->currentIndex() == 2) de_3();
+    else de_2();
     ui->progressBar->hide();
 }
 
 void MainWindow::lggen_clicked(){
     ui->progressBar->show();
-    if (ui->radioButtontmr3->isChecked()) MainWindow::lggen_3();
-    else if (ui->radioButtontmr2->isChecked()) MainWindow::lggen_2();
-    else MainWindow::lggen_4();
+    if (ui->algo->currentIndex() == 0) lggen_5();
+    else if (ui->algo->currentIndex() == 1) lggen_4();
+    else if (ui->algo->currentIndex() == 2) lggen_3();
+    else lggen_2();
     ui->progressBar->hide();
 }
 
 void MainWindow::ggggen_clicked(){
     ui->progressBar->show();
-    if (ui->radioButtontmr3->isChecked()) MainWindow::ggggen_3();
-    else if (ui->radioButtontmr2->isChecked()) MainWindow::ggggen_2();
-    else MainWindow::ggggen_4();
+    if (ui->algo->currentIndex() == 0) ggggen_5();
+    else if (ui->algo->currentIndex() == 1) ggggen_4();
+    else if (ui->algo->currentIndex() == 2) ggggen_3();
+    else ggggen_2();
     ui->progressBar->hide();
 }
 
 string MainWindow::key_translater_3(){
     long long keyNum = 0;
-    string keyinput = (ui->keyEdittmr3->text()).toStdString() + "                       ";
+    string keyinput = (ui->keyEdit->text()).toStdString() + "                       ";
     // 转换密钥的前段
     for(int i = 0; i < 10; i++){
         keyNum += keyToNumber(keyinput[i]) * pow62[i];
@@ -254,7 +250,7 @@ int rd(int a, int b) {
 void MainWindow::de_2() {
     enList();
     int keyinput = 0;
-    int keyEditinput = (ui->keyEdittmr2->text()).toInt();
+    int keyEditinput = (ui->keyEdit->text()).toInt();
     if (keyEditinput >= 0 && keyEditinput <= 65535) keyinput = keyEditinput;
     int key[4];
     for (int i = 3; i >= 0; i--) {
@@ -462,8 +458,8 @@ void MainWindow::de_4() {
     long numCount;
     string input = ui->deEdit->toPlainText().toUtf8().constData();
     u32string u32input = ui->deEdit->toPlainText().toStdU32String();
-    if (input.find(lggen[0]) != string::npos || input.find(lggen[1]) != string::npos || input.find(lggen[2]) != string::npos ||
-        input.find(lggen[3]) != string::npos || input.find(lggen[4]) != string::npos || input.find(lggen[5]) != string::npos) {
+    if (input.find(en[0]) != string::npos || input.find(en[1]) != string::npos || input.find(en[2]) != string::npos ||
+        input.find(en[3]) != string::npos || input.find(en[4]) != string::npos || input.find(en[5]) != string::npos) {
         numCount = u32input.size() / 2;
         vector<int> num(numCount);
         vector<long> exchangeList(numCount);
@@ -545,7 +541,7 @@ void MainWindow::de_4() {
             }
         }
     }
-    else if (input.find(ggggen[0]) != string::npos || input.find(ggggen[1]) != string::npos) {
+    else if (input.find(en[6]) != string::npos || input.find(ggggen[6]) != string::npos) {
         numCount = u32input.size() / 4;
         vector<int> num(numCount);
         vector<long> exchangeList(numCount);
@@ -620,10 +616,87 @@ void MainWindow::de_4() {
     ui->enEdit->setPlainText(QString::fromUtf8(done));
 }
 
+void MainWindow::de_5() {
+    string key = MainWindow::key_translater_3();
+    enList();
+    string done;
+    long numCount;
+    vector<int> a;
+    string input = ui->deEdit->toPlainText().toUtf8().constData();
+    u32string u32input = ui->deEdit->toPlainText().toStdU32String();
+    if (input.find(en[0]) != string::npos || input.find(en[1]) != string::npos || input.find(en[2]) != string::npos ||
+        input.find(en[3]) != string::npos || input.find(en[4]) != string::npos || input.find(en[5]) != string::npos) {
+        ui->progressBar->setRange(0, u32input.size() / 64);
+        for (int i = 0; i < u32input.size() / 64; i++){
+            string aesResult;
+            for(int j = 0; j < 32; j++){
+                int num = lgg(QString::fromStdU32String(u32input.substr(i*64+j*2, 2)).toStdString());
+                aesResult += (num == 0) ? "0" : int_to_chs(num);
+            }
+            string plain_text = in_aes(aesResult, key);
+            cout<<plain_text<<endl<<aesResult<<endl;
+            for(int j = 0; j < 8; j++){
+                a.push_back(str_long(plain_text.substr(j*4, 4)));
+            }
+            ui->progressBar->setValue(i);
+        }
+
+        for (int i = 0; i < u32input.size() / 8; ){
+            uint32_t result;
+            if (a[i] <= 0x2FEF && a[i] >= 0x2FE1){
+                result = (a[i] % 16) * 0x10000 + a[i+1];
+                i += 2;
+            }else if(a[i] == 0x2FE0){
+                result = 0x100000 + a[i+1];
+                i += 2;
+            }else{
+                result = a[i];
+                i++;
+            }
+            char32_t ch = static_cast<char32_t>(result);
+            QString qstr = QString::fromUcs4(&ch, 1);
+            if (result != 0) done += qstr.toStdString();
+        }
+    }
+    else if (input.find(en[6]) != string::npos || input.find(ggggen[6]) != string::npos) {
+        ui->progressBar->setRange(0, u32input.size() / 128);
+        for (int i = 0; i < u32input.size() / 128; i++){
+            string aesResult;
+            for(int j = 0; j < 32; j++){
+                int num = gggg(QString::fromStdU32String(u32input.substr(i*128+j*4, 4)).toStdString());
+                aesResult += (num == 0) ? "0" : int_to_chs(num);
+            }
+            string plain_text = in_aes(aesResult, key);
+            for(int j = 0; j < 8; j++){
+                a.push_back(str_long(plain_text.substr(j*4, 4)));
+            }
+            ui->progressBar->setValue(i);
+        }
+
+        for (int i = 0; i < u32input.size() / 16; ){
+            uint32_t result;
+            if (a[i] <= 0x2FEF && a[i] >= 0x2FE1){
+                result = (a[i] % 16) * 0x10000 + a[i+1];
+                i += 2;
+            }else if(a[i] == 0x2FE0){
+                result = 0x100000 + a[i+1];
+                i += 2;
+            }else{
+                result = a[i];
+                i++;
+            }
+            char32_t ch = static_cast<char32_t>(result);
+            QString qstr = QString::fromUcs4(&ch, 1);
+            if (result != 0) done += qstr.toStdString();
+        }
+    }
+    ui->enEdit->setPlainText(QString::fromUtf8(done));
+}
+
 void MainWindow::lggen_2() {
     enList();
     int keyinput = 0;
-    int keyEditinput = (ui->keyEdittmr2->text()).toInt();
+    int keyEditinput = (ui->keyEdit->text()).toInt();
     if (keyEditinput >= 0 && keyEditinput <= 65535) keyinput = keyEditinput;
     int key[4];
     for (int i = 3; i >= 0; i--) {
@@ -816,10 +889,52 @@ void MainWindow::lggen_4() {
     ui->deEdit->setPlainText(QString::fromUtf8(result));
 }
 
+void MainWindow::lggen_5(){
+    string key = key_translater_3();
+    enList();
+    QString qinput = ui->enEdit->toPlainText();
+    u32string u32input = qinput.toStdU32String();
+    vector<int> a;
+    string done;
+    long numCount = 0; // 计算总的数字个数
+
+    for (long i = 0; i < u32input.length(); i++) {
+        int ch = static_cast<uint32_t>(u32input[i]);
+        if (ch >= 65536) {
+            numCount += 2;
+            a.push_back(0x2FE0 + (ch/0x10000)%10);
+        }else{
+            numCount++;
+        }
+        a.push_back(ch%0x10000);
+    }
+
+    for (int i = 0; i < (8-numCount%8)%8; i++){
+        a.push_back(0);
+    }
+    ui->progressBar->setRange(0, static_cast<int>(a.size())/8);
+
+    for (int i = 0; i < static_cast<int>(a.size())/8; i++){
+        string plain_text = "";
+        for(int j = 0; j < 8; j++){
+            string chs = int_to_chs(a[8*i+j]);
+            chs = string(4 - chs.length(), '0') + chs;
+            plain_text += chs;
+        }
+        string aesResult = aes(plain_text, key);
+        for(int j = 0; j < 32; j++){
+            done += lggen[ch_to_int(aesResult[j]) + rd(0, 1)*16];
+        }
+        ui->progressBar->setValue(i);
+    }
+
+    ui->deEdit->setPlainText(QString::fromUtf8(done));
+}
+
 void MainWindow::ggggen_2(){
     enList();
     int keyinput = 0;
-    int keyEditinput = (ui->keyEdittmr2->text()).toInt();
+    int keyEditinput = (ui->keyEdit->text()).toInt();
     if (keyEditinput >= 0 && keyEditinput <= 65535) keyinput = keyEditinput;
     int key[4];
     for (int i = 3; i >= 0; i--) {
@@ -999,6 +1114,48 @@ void MainWindow::ggggen_4() {
     for (long i = 0; i < numCount; i++) { result += ggggen[num[i]]; }
 
     ui->deEdit->setPlainText(QString::fromUtf8(result));
+}
+
+void MainWindow::ggggen_5(){
+    string key = key_translater_3();
+    enList();
+    QString qinput = ui->enEdit->toPlainText();
+    u32string u32input = qinput.toStdU32String();
+    vector<int> a;
+    string done;
+    long numCount = 0; // 计算总的数字个数
+
+    for (long i = 0; i < u32input.length(); i++) {
+        int ch = static_cast<uint32_t>(u32input[i]);
+        if (ch >= 65536) {
+            numCount += 2;
+            a.push_back(0x2FE0 + (ch/0x10000)%10);
+        }else{
+            numCount++;
+        }
+        a.push_back(ch%0x10000);
+    }
+
+    for (int i = 0; i < (8-numCount%8)%8; i++){
+        a.push_back(0);
+    }
+    ui->progressBar->setRange(0, static_cast<int>(a.size())/8);
+
+    for (int i = 0; i < static_cast<int>(a.size())/8; i++){
+        string plain_text = "";
+        for(int j = 0; j < 8; j++){
+            string chs = int_to_chs(a[8*i+j]);
+            chs = string(4 - chs.length(), '0') + chs;
+            plain_text += chs;
+        }
+        string aesResult = aes(plain_text, key);
+        for(int j = 0; j < 32; j++){
+            done += ggggen[ch_to_int(aesResult[j])];
+        }
+        ui->progressBar->setValue(i);
+    }
+
+    ui->deEdit->setPlainText(QString::fromUtf8(done));
 }
 
 void MainWindow::enDelete_clicked() { ui->enEdit->clear(); }

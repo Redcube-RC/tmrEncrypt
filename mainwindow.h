@@ -21,12 +21,15 @@ public:
     void de_2();
     void de_3();
 	void de_4();
+    void de_5();
     void lggen_2();
     void lggen_3();
     void lggen_4();
+    void lggen_5();
     void ggggen_2();
     void ggggen_3();
     void ggggen_4();
+    void ggggen_5();
     int lgg(std::string a);
 	int gggg(std::string a);
     void enList();
@@ -58,6 +61,9 @@ public slots:
     void enCopy_clicked();
     void enDelete_clicked();
     void exchange_clicked();
+    void on_algo_currentIndexChanged(int index);
+
+private slots:
 
 private:
     Ui::MainWindow *ui;  
